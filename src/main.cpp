@@ -3,6 +3,7 @@
 #include "ui.hpp"
 
 #include <cassert>
+#include <sys/time.h>
 
 int main(int argc, const char** argv) {
 	game::init();
@@ -18,6 +19,8 @@ int main(int argc, const char** argv) {
 	bool loop = true;
 	int currentCols = COLS;
 	int currentLines = LINES;
+	int timeoutMax = 500;
+	int timeout = timeoutMax;
 	while (loop) {
 		if (currentCols != COLS || currentLines != LINES) {
 			currentCols = COLS;
@@ -25,8 +28,35 @@ int main(int argc, const char** argv) {
 			clear();
 		}
 		ui::drawPlayfield(&p);
-		timeout(500);
+
+		timeval startTime, endTime;
+		gettimeofday(&startTime, NULL);
+
+		timeout(timeout);
 		char input = getch();
+
+		gettimeofday(&endTime, NULL);
+
+		// check if we timed out.
+		if (input == ERR) {
+			timeout = timeoutMax;
+
+		// otherwise calculate the new timeout
+		} else { 
+			timeval deltaTime;
+			deltaTime.tv_sec = endTime.tv_sec - startTime.tv_sec;
+			deltaTime.tv_usec = endTime.tv_usec - startTime.tv_usec;
+			
+			// carry second if micro is negative
+			if (deltaTime.tv_usec < 0) {
+				deltaTime.tv_usec += 1000000;
+				deltaTime.tv_sec--;
+			}
+
+			if ((timeout -= deltaTime.tv_usec / 1000) <= 0) {
+				timeout = timeoutMax;
+			}
+		}
 
 		switch (input) {
 			case ' ':
@@ -35,9 +65,6 @@ int main(int argc, const char** argv) {
 
 			case 'h':
 				game::movePolyno(&p, shape, {-1,0});
-				break;
-			case 'j':
-				game::movePolyno(&p, shape, {0,1});
 				break;
 			case 'k':
 				game::movePolyno(&p, shape, {0,-1});
@@ -48,15 +75,21 @@ int main(int argc, const char** argv) {
 			case 'r':
 				game::rotate(&p, &shape);
 				break;
-			case 'n':
-				shp::deinitPolyomino(&shape);
-				shape = game::drawTetro();
-				game::setPolynoPos(&p, shape, {0,0});
-				break;
 
+			case 'j':
 			default:
 				if (!game::movePolyno(&p, shape, {0,1})) {
 					shp::deinitPolyomino(&shape);
+
+					std::vector<bool> filledRows = game::checkFilledRows(&p);
+
+					// Flash every row about to be cleared.
+					for (int i = 0; i < p.h; i++) {
+					}
+
+					shape = game::drawTetro();
+					game::setPolynoPos(&p, shape, {0,0});
+
 				}
 				break;
 		}

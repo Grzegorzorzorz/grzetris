@@ -5,7 +5,6 @@
 #include "shape.hpp"
 
 #include <cassert>
-#include <iostream>
 #include <list>
 #include <map>
 #include <random>
@@ -263,6 +262,10 @@ namespace game {
 		}
 	}
 
+	void dropPolyno(playfield *p, shp::polyomino *shape) {
+		while (movePolyno(p, shape, {0, 1})) {;}
+	}
+
 	void move(playfield* p, mth::vect2D displacement) {
 		movePolyno(p, p->currentShape, displacement);
 	}
@@ -311,15 +314,15 @@ namespace game {
 		ret.reserve(p->h);
 
 		for (std::vector<shp::block*> row: p->blocks) {
-			bool hasNullBlock = false;
+			bool isRowFilled = true;
 			for (shp::block* block: row) {
-				if (hasNullBlock || block == nullptr) {
-					hasNullBlock = true;
+				if (block == nullptr) {
+					isRowFilled = false;
 					break;
 				}
 			}
 
-			ret.push_back(hasNullBlock);
+			ret.push_back(isRowFilled);
 		}
 		
 		return ret;
@@ -327,6 +330,19 @@ namespace game {
 
 	// Score based on the number of rows 
 	int scoreFilledRows(std::vector<bool> rows) {
+	}
+
+	int clearFilledRows(playfield *p, std::vector<bool> rows) {
+		int numCleared = 0;
+
+		for (int i = 0; i < p->h; i++) {
+			if (rows.at(i) == true) {
+				clearRow(p, i);
+				numCleared++;
+			}
+		}
+
+		return numCleared;
 	}
 
 	int clearRow(playfield* p, int index) {
@@ -346,6 +362,13 @@ namespace game {
 		}
 		
 		return 0;
+	}
+
+	int bleachRow(playfield* p, int rowID) {
+		for (shp::block* b: p->blocks[rowID]) {
+			assert(b != nullptr);
+			b->c = NONE;
+		}
 	}
 
 	int rotate(playfield* p, shp::polyomino** shape) {

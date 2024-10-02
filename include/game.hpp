@@ -29,7 +29,10 @@ namespace game {
 	bool hasFilledRow(const playfield* p);
 	std::vector<bool> checkFilledRows(const playfield* p);
 	int scoreFilledRows(std::vector<bool> rows);
+	int clearFilledRows(playfield* p, std::vector<bool> rows);
 	int clearRow(playfield* p, int index);
+
+	int bleachRow(playfield* p, int rowID);
 
 	bool polynoMoveCheck(
 			const playfield* p,
@@ -38,9 +41,12 @@ namespace game {
 			bool ignoreCurrentPos=true);
 	bool movePolyno(
 			playfield* p, shp::polyomino* shape, mth::vect2D displacement);
+	void dropPolyno(
+			playfield* p, shp::polyomino* shape);
 	void deletePolynoBlocks(playfield* p, shp::polyomino* shape);
 	void setPolynoPos(
 			playfield* p, shp::polyomino* shape, mth::vect2D position);
+
 	
 	int rotate(playfield* p, shp::polyomino** shape);
 }

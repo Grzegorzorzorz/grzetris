@@ -13,7 +13,7 @@ namespace ui {
 		noecho();
 		curs_set(0);
 
-		if (!has_colors()) {
+		if (has_colors()) {
 			start_color();
 
 			init_pair(RED, COLOR_RED, COLOR_RED);

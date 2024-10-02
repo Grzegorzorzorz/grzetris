@@ -15,11 +15,6 @@ namespace shp {
 		CLOCKWISE = 1
 	};
 	
-	/*
-	typedef std::vector<std::vector<block*>> board;
-
-	board initBoard(int h, int w);
-	*/
 	struct block {
 		mth::vect2D pos;
 		colour c;

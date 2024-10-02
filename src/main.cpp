@@ -3,6 +3,7 @@
 #include "ui.hpp"
 
 #include <cassert>
+#include <thread>
 #include <sys/time.h>
 
 int main(int argc, const char** argv) {
@@ -59,39 +60,43 @@ int main(int argc, const char** argv) {
 		}
 
 		switch (input) {
-			case ' ':
+			case 'q':
 				loop = false;
 				break;
 
 			case 'h':
 				game::movePolyno(&p, shape, {-1,0});
 				break;
-			case 'k':
-				game::movePolyno(&p, shape, {0,-1});
-				break;
-			case 'l':
-				game::movePolyno(&p, shape, {1,0});
-				break;
 			case 'r':
 				game::rotate(&p, &shape);
 				break;
 
+			case 'k':
+				game::movePolyno(&p, shape, {1,0});
+				break;
+
+			case ' ':
+				game::dropPolyno(&p, shape);
 			case 'j':
 			default:
-				if (!game::movePolyno(&p, shape, {0,1})) {
-					shp::deinitPolyomino(&shape);
+				if (game::movePolyno(&p, shape, {0,1})) {break;}
+				shp::deinitPolyomino(&shape);
+
+				if (game::hasFilledRow(&p)) {
 
 					std::vector<bool> filledRows = game::checkFilledRows(&p);
 
-					// Flash every row about to be cleared.
-					for (int i = 0; i < p.h; i++) {
-					}
+					//std::this_thread::sleep_for(
+					//		std::chrono::milliseconds(timeoutMax));
 
-					shape = game::drawTetro();
-					game::setPolynoPos(&p, shape, {0,0});
+					timeout = timeoutMax;
 
+					game::clearFilledRows(&p, filledRows);
 				}
-				break;
+
+				shape = game::drawTetro();
+				game::setPolynoPos(&p, shape, {0,0});
+
 		}
 	}
 

@@ -2,7 +2,6 @@
 
 #include "maths.hpp"
 
-#include <map>
 #include <vector>
 
 namespace shp {

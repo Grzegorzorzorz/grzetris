@@ -60,6 +60,7 @@ make -j25
 ## Licence
 
 **grzetris**, a *tris-like
+
 Copyright (C) 2024 Grzegorz Ciołek
 
 This program is free software: you can redistribute it and/or modify

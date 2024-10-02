@@ -3,7 +3,6 @@
 #include "shape.hpp"
 
 #include <vector>
-#include <deque>
 
 namespace game {
 	enum playerID {
@@ -20,6 +19,8 @@ namespace game {
 
 	int init();
 	int deinit();
+
+	void run();
 
 	void shakeTetroBag();
 	shp::polyomino* drawTetro();

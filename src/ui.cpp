@@ -2,9 +2,17 @@
 #include "colour.hpp"
 
 #include <ncurses.h>
+#include <map>
 
 namespace ui {
+	enum class windowTypes {
+		PLAYFIELD,
+		NEXT_SHAPE,
+		STATISTICS
+	};
+
 	WINDOW* stdscr = NULL;
+	std::map<windowTypes, WINDOW*> windows;
 
 	int init() {
 		int ret = 0;
@@ -30,8 +38,14 @@ namespace ui {
 	
 	int deinit() {
 		int ret = 0;
-		if (endwin() == ERR) {ret++;}
+
 		delwin(stdscr);
+		for (auto& [key, win]: windows) {
+			delwin(win);
+			windows.erase(key);
+		}
+
+		if (endwin() == ERR) {ret++;}
 
 		return ret;
 	}
@@ -48,15 +62,18 @@ namespace ui {
 	}
 
 	int drawPlayfield(const game::playfield *p) {
-		// Create a window for the playfield.
-		// Width is doubled to make each block more square.
-		WINDOW* playfieldWin = newwin(
-				2 * p->h + 2,
-				(4 * p->w) + 2,
-				LINES / 2 - ((p->h) + 1), // Center vertically
-				COLS / 2 - (2 * p->w + 1) // Center horizontally.
-		);
-		refresh();
+		if (!windows.contains(windowTypes::PLAYFIELD)) {
+			// Create a window for the playfield.
+			// Width is doubled to make each block more square.
+			windows[windowTypes::PLAYFIELD] = newwin(
+					2 * p->h + 2,
+					2 * (2 * p->w) + 2,
+					LINES / 2 - ((p->h) + 1), // Center vertically
+					COLS / 2 - (2 * p->w + 1) // Center horizontally.
+			);
+		}
+		WINDOW* playfieldWin = windows.at(windowTypes::PLAYFIELD);
+		werase(playfieldWin);
 		wborder(playfieldWin, 0, 0, 0, '^', 0, 0, '^', '^');
 
 		// Print the playfield, block by block.
@@ -78,7 +95,45 @@ namespace ui {
 			}
 		}
 		wrefresh(playfieldWin);
-		delwin(playfieldWin);
+		return 0;
+	}
+
+	int drawNextShape(const shp::polyomino *shape) {
+		const int HEIGHT = 8;
+		const int WIDTH = 14;
+		if (!windows.contains(windowTypes::NEXT_SHAPE)) {
+			int nextX, nextY = 0;
+			if (windows.contains(windowTypes::PLAYFIELD)) {
+				nextX = getmaxx(windows.at(windowTypes::PLAYFIELD))
+						+ getbegx(windows.at(windowTypes::PLAYFIELD));
+				nextY = getbegy(windows.at(windowTypes::PLAYFIELD));
+			}
+			windows[windowTypes::NEXT_SHAPE]
+				= newwin(HEIGHT, WIDTH, nextY, nextX);
+		}
+
+		WINDOW* nextWin = windows.at(windowTypes::NEXT_SHAPE);
+		werase(nextWin);
+		box(nextWin, 0, 0);
+
+		mvwaddstr(nextWin, 2, WIDTH / 2 - 2, "NEXT");
+
+		for (const shp::block* block: shape->blocks) {
+			if (has_colors()) {
+				wattron(nextWin, COLOR_PAIR(block->c));
+			}
+			mvwaddstr(
+					nextWin,
+					HEIGHT / 2 + (block->pos.y),
+					WIDTH / 2 - shape->w + (2 * block->pos.x),
+					"XX"
+			);
+			if (has_colors()) {
+				wattroff(nextWin, COLOR_PAIR(block->c));
+			}
+		}
+
+		wrefresh(nextWin);
 		return 0;
 	}
 }

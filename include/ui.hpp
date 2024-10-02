@@ -10,7 +10,7 @@ namespace ui {
 	int deinit();
 
 	int drawPlayfield(const game::playfield* p);
-	int drawStats();
+	int drawNextShape(const shp::polyomino* shape);
 }
 
 #endif

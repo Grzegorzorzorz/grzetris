@@ -30,7 +30,7 @@ below.
 
 1. Clone the repository:
 ```shell
-https://github.com/Grzegorzorzorz/grzetris.git && cd grzetris
+git clone https://github.com/Grzegorzorzorz/grzetris.git && cd grzetris
 ```
 2. Make a build directory:
 ```shell
@@ -51,7 +51,7 @@ make -j25
 
 #### Quick build:
 ```shell
-https://github.com/Grzegorzorzorz/grzetris.git && cd grzetris
+git clone https://github.com/Grzegorzorzorz/grzetris.git && cd grzetris
 mkdir build && cd build
 cmake ../ -DCMAKE_BUILD_TYPE=Release
 make -j25

@@ -56,8 +56,12 @@ namespace shp {
 			b->pos.x = oldY - p->h;
 		}
 
+		bool isPivotEvenX = p->w % 2 == 0;
+		bool isPivotEvenY = p->h % 2 == 0;
+
 		int swap = pivotTracker.y;
 		pivotTracker.y = pivotTracker.x + p->h;
+
 		pivotTracker.x = swap - p->h;
 
 
@@ -66,7 +70,14 @@ namespace shp {
 			b->pos.x = (b->pos.x * -1) - 1;
 		}
 
-		pivotTracker.x = (pivotTracker.x * -1) -1;
+
+		if (!isPivotEvenX) {
+			pivotTracker.x = (pivotTracker.x * -1) -1;
+		} else {
+			pivotTracker.x = pivotTracker.x + p->w;
+		}
+
+
 
 
 		// Adjust the position of the piece so it remains within its own
@@ -77,12 +88,13 @@ namespace shp {
 		p->h = p->w;
 		p->w = swap;
 
+
 		// This needs to be adjusted for pieces which rotate about a line
 		// intersection, such as the I and O.
-		bool isOutOfBounds = false;
 		for (block* b : p->blocks) {
-			b->pos = b->pos - (pivotTracker - pivot);
+			b->pos.x = b->pos.x - (pivotTracker.x - pivot.x);
+			b->pos.y = b->pos.y - (pivotTracker.y - pivot.y);
 		}
-		
+
 	}
 }

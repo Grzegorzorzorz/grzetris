@@ -134,7 +134,7 @@ namespace game {
 				case ' ':
 					game::dropPolyno(&p, shape);
 				case 'j':
-				default:
+				case ERR:
 					if (game::movePolyno(&p, shape, {0,1})) {break;}
 					shp::deinitPolyomino(&shape);
 

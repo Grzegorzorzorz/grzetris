@@ -33,8 +33,6 @@ namespace game {
 	int clearFilledRows(playfield* p, std::vector<bool> rows);
 	int clearRow(playfield* p, int index);
 
-	int bleachRow(playfield* p, int rowID);
-
 	bool polynoMoveCheck(
 			const playfield* p,
 			const shp::polyomino* shape,

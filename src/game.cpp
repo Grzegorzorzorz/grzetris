@@ -6,9 +6,11 @@
 #include "ui.hpp"
 
 #include <cassert>
+#include <chrono>
 #include <list>
 #include <map>
 #include <random>
+#include <thread>
 #include <sys/time.h>
 
 namespace game {
@@ -141,9 +143,6 @@ namespace game {
 					if (game::hasFilledRow(&p)) {
 
 						std::vector<bool> filledRows = game::checkFilledRows(&p);
-
-						//std::this_thread::sleep_for(
-						//		std::chrono::milliseconds(timeoutMax));
 
 						timeout = timeoutMax;
 
@@ -400,8 +399,10 @@ namespace game {
 		for (std::vector<shp::block*> row: p->blocks) {
 			bool hasNullBlock = false;
 			for (shp::block* block : row) {
-				if (block == nullptr) {hasNullBlock = true;}
-				break;
+				if (block == nullptr) {
+					hasNullBlock = true;
+					break;
+				}
 			}
 
 			if (!hasNullBlock) {
@@ -463,16 +464,8 @@ namespace game {
 			for (int x = 0; x < p->w; x++) {
 				p->blocks[y - 1][x] = nullptr;
 			}
-		}
-		
+		}	
 		return 0;
-	}
-
-	int bleachRow(playfield* p, int rowID) {
-		for (shp::block* b: p->blocks[rowID]) {
-			assert(b != nullptr);
-			b->c = NONE;
-		}
 	}
 
 	int rotate(playfield* p, shp::polyomino** shape) {

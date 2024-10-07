@@ -11,7 +11,7 @@ namespace game {
 		QUIT
 	};
 
-	void timeoutAction(
+	int timeoutAction(
 			ngin::playfield* p,
 			shp::polyomino** shape,
 			shp::polyomino** nextShape,
@@ -19,7 +19,7 @@ namespace game {
 			int* timeoutMax
 	) {
 		if (ngin::movePolyno(p, *shape, {0,1})) {
-			return;
+			return 0;
 		}
 
 		shp::deinitPolyomino(shape);
@@ -35,7 +35,14 @@ namespace game {
 
 		*shape = *nextShape;
 		*nextShape = ngin::drawTetro();
+
+		// We can't place the shape, game over!
+		if (!ngin::polynoMoveCheck(p, *shape, {0,0})) {
+			return 1;
+		}
+
 		ngin::setPolynoPos(p, *shape, {0,0});
+		return 0;
 	}
 
 	int calculateTimeout(
@@ -137,11 +144,16 @@ namespace game {
 					break;
 
 				case TIMEOUT:
-					timeoutAction(
+					int ret = timeoutAction(
 							&p, &shape, &nextShape, &timeout, &timeoutMax);
+
+					if (ret == 1) {
+						loop = false;
+					}
 			}
 		}
 		shp::deinitPolyomino(&shape);
+		shp::deinitPolyomino(&nextShape);
 		ngin::deinit();
 	}
 }

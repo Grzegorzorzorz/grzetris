@@ -17,7 +17,6 @@ That something is **grzetris**!
 
 ## Planned features
 - Scoring system
-- Exit on loss
 - Leaderboard
 - Storing pieces
 - Cool menu screen™

@@ -8,12 +8,18 @@ equally fast to put down.
 
 That something is **grzetris**!
 
+## Current features
+- Randomised pieces
+- Line clearing
+- Full geometric rotation
+- Next piece preview
+- Quick drop
+
 ## Planned features
 - Scoring system
 - Exit on loss
 - Leaderboard
 - Storing pieces
-- Next piece preview
 - Cool menu screen™
 
 ## Installation

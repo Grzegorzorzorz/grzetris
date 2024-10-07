@@ -1,5 +1,7 @@
 #include "ui.hpp"
+
 #include "colour.hpp"
+#include "engine.hpp"
 
 #include <ncurses.h>
 #include <map>
@@ -61,7 +63,7 @@ namespace ui {
 		return 0;
 	}
 
-	int drawPlayfield(const game::playfield *p) {
+	int drawPlayfield(const ngin::playfield *p) {
 		if (!windows.contains(windowTypes::PLAYFIELD)) {
 			// Create a window for the playfield.
 			// Width is doubled to make each block more square.

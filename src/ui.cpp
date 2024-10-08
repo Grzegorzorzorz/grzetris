@@ -75,6 +75,10 @@ namespace ui {
 			);
 		}
 		WINDOW* playfieldWin = windows.at(windowTypes::PLAYFIELD);
+		// Center the window
+		mvwin(playfieldWin,
+				LINES / 2 - ((p->h) + 1),
+				COLS / 2 - (2 * p->w + 1));
 		werase(playfieldWin);
 		wborder(playfieldWin, 0, 0, 0, '^', 0, 0, '^', '^');
 
@@ -103,18 +107,20 @@ namespace ui {
 	int drawNextShape(const shp::polyomino *shape) {
 		const int HEIGHT = 8;
 		const int WIDTH = 14;
+		int nextX, nextY = 0;
+		if (windows.contains(windowTypes::PLAYFIELD)) {
+			nextX = getmaxx(windows.at(windowTypes::PLAYFIELD))
+				+ getbegx(windows.at(windowTypes::PLAYFIELD));
+			nextY = getbegy(windows.at(windowTypes::PLAYFIELD));
+		}
+
 		if (!windows.contains(windowTypes::NEXT_SHAPE)) {
-			int nextX, nextY = 0;
-			if (windows.contains(windowTypes::PLAYFIELD)) {
-				nextX = getmaxx(windows.at(windowTypes::PLAYFIELD))
-						+ getbegx(windows.at(windowTypes::PLAYFIELD));
-				nextY = getbegy(windows.at(windowTypes::PLAYFIELD));
-			}
 			windows[windowTypes::NEXT_SHAPE]
 				= newwin(HEIGHT, WIDTH, nextY, nextX);
 		}
 
 		WINDOW* nextWin = windows.at(windowTypes::NEXT_SHAPE);
+		mvwin(nextWin, nextY, nextX);
 		werase(nextWin);
 		box(nextWin, 0, 0);
 

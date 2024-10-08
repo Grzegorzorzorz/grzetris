@@ -16,6 +16,7 @@ That something is **grzetris**!
 - Quick drop
 
 ## Planned features
+- Customisable key binds
 - Scoring system
 - Leaderboard
 - Storing pieces

@@ -1,5 +1,6 @@
 #include "game.hpp"
 
+#include "config.hpp"
 #include "ui.hpp"
 
 #include <sys/time.h>
@@ -73,26 +74,29 @@ namespace game {
 			ngin::playfield* p,
 			shp::polyomino** shape
 	) {
-			switch (input) {
-				case 'q':
+			switch (cfg::getBind(input)) {
+				case cfg::bind::GAME_QUIT:
 					return QUIT;
 
-				case 'h':
+				case cfg::bind::GAME_LEFT:
 					ngin::movePolyno(p, *shape, {-1,0});
 					break;
-				case 'r':
-					ngin::rotate(p, shape);
-					break;
-
-				case 'k':
+				case cfg::bind::GAME_RIGHT:
 					ngin::movePolyno(p, *shape, {1,0});
 					break;
 
-				case ' ':
+				case cfg::bind::GAME_ROTATE:
+					ngin::rotate(p, shape);
+					break;
+
+				case cfg::bind::GAME_DROP:
 					ngin::dropPolyno(p, *shape);
-				case 'j':
-				case ERR:
+				case cfg::bind::GAME_DOWN:
+				case cfg::bind::GAME_NO_ACTION:
 					return TIMEOUT;
+
+				default:
+					break;
 			}
 			return NOMINAL;
 	}

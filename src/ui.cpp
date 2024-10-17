@@ -1,16 +1,19 @@
 #include "ui.hpp"
 
 #include "colour.hpp"
+#include "config.hpp"
 #include "engine.hpp"
 
 #include <ncurses.h>
 #include <map>
+#include <sstream>
 
 namespace ui {
 	enum class windowTypes {
 		PLAYFIELD,
 		NEXT_SHAPE,
-		STATISTICS
+		STATISTICS,
+		CONTROLS
 	};
 
 	WINDOW* stdscr = NULL;
@@ -50,6 +53,10 @@ namespace ui {
 		if (endwin() == ERR) {ret++;}
 
 		return ret;
+	}
+
+	inline int centre(int parentSize, int size) {
+		return (parentSize - size) / 2;
 	}
 
 	int drawStats() {
@@ -107,7 +114,7 @@ namespace ui {
 	int drawNextShape(const shp::polyomino *shape) {
 		const int HEIGHT = 8;
 		const int WIDTH = 14;
-		int nextX, nextY = 0;
+		int nextX = 0, nextY = 0;
 		if (windows.contains(windowTypes::PLAYFIELD)) {
 			nextX = getmaxx(windows.at(windowTypes::PLAYFIELD))
 				+ getbegx(windows.at(windowTypes::PLAYFIELD));
@@ -124,7 +131,7 @@ namespace ui {
 		werase(nextWin);
 		box(nextWin, 0, 0);
 
-		mvwaddstr(nextWin, 2, WIDTH / 2 - 2, "NEXT");
+		mvwaddstr(nextWin, 2, centre(WIDTH, 4), "NEXT");
 
 		for (const shp::block* block: shape->blocks) {
 			if (has_colors()) {
@@ -142,6 +149,80 @@ namespace ui {
 		}
 
 		wrefresh(nextWin);
+		return 0;
+	}
+
+	std::string getBindChar(cfg::bind bind) {
+		std::vector<char> chars = cfg::getReverseBind(bind);
+
+		if (!chars.empty()) {
+			std::stringstream bindChar;
+			bindChar << "[" << chars.at(0) << "]";
+			return bindChar.str();
+		} else {
+			return "(none)";
+		}
+	}
+
+	int drawControls() {
+		const int HEIGHT = 15;
+		const int WIDTH = 20;
+		int controlsX = 0, controlsY = 0;
+		if (windows.contains(windowTypes::PLAYFIELD)) {
+			controlsX = getbegx(windows.at(windowTypes::PLAYFIELD)) - WIDTH;
+			controlsY = getbegy(windows.at(windowTypes::PLAYFIELD));
+				//+ getmaxy(windows.at(windowTypes::PLAYFIELD)) - HEIGHT;
+		}
+
+		if (!windows.contains(windowTypes::CONTROLS)) {
+			windows[windowTypes::CONTROLS] = newwin(
+					HEIGHT, WIDTH, controlsY, controlsX);
+		}
+
+		WINDOW* controlsWin = windows.at(windowTypes::CONTROLS);
+		mvwin(controlsWin, controlsY, controlsX);
+		werase(controlsWin);
+		box(controlsWin, 0, 0);
+
+		int cursorLine = 2;
+		mvwaddstr(controlsWin, cursorLine, centre(WIDTH, 8), "CONTROLS");
+
+		cursorLine += 1;
+
+		// List of binds to render
+		cfg::bind gameBinds[] = {
+			cfg::bind::GAME_LEFT,
+			cfg::bind::GAME_RIGHT,
+			cfg::bind::GAME_DOWN,
+			cfg::bind::NONE,
+			cfg::bind::GAME_DROP,
+			cfg::bind::GAME_ROTATE,
+			cfg::bind::NONE,
+			cfg::bind::GAME_PAUSE,
+			cfg::bind::GAME_QUIT,
+		};
+
+		for (cfg::bind bind: gameBinds) {
+			if (bind == cfg::bind::NONE) {
+				cursorLine++;
+				continue;
+			}
+
+			mvwaddstr(
+					controlsWin,
+					++cursorLine,
+					3,
+					cfg::bindToFriendlyString(bind).c_str());
+			mvwaddstr(
+					controlsWin,
+					cursorLine,
+					WIDTH - getBindChar(bind).length() - 3,
+					getBindChar(bind).c_str());
+		}
+
+		
+
+		wrefresh(controlsWin);
 		return 0;
 	}
 }

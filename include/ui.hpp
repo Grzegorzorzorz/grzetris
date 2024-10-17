@@ -11,6 +11,7 @@ namespace ui {
 
 	int drawPlayfield(const ngin::playfield* p);
 	int drawNextShape(const shp::polyomino* shape);
+	int drawControls();
 }
 
 #endif

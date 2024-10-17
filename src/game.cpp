@@ -115,6 +115,10 @@ namespace game {
 		int currentLines = LINES;
 		int timeoutMax = 500;
 		int timeout = timeoutMax;
+
+		ui::drawPlayfield(&p);
+		ui::drawControls();
+
 		while (loop) {
 			if (currentCols != COLS || currentLines != LINES) {
 				currentCols = COLS;
@@ -123,6 +127,7 @@ namespace game {
 			}
 			ui::drawPlayfield(&p);
 			ui::drawNextShape(nextShape);
+			ui::drawControls();
 
 			timeval startTime, endTime;
 			gettimeofday(&startTime, NULL);

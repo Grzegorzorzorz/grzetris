@@ -3,6 +3,7 @@
 #include "ncurses.h"
 
 #include <map>
+#include <vector>
 
 namespace cfg {
 	std::map<char, bind> bindings;
@@ -42,8 +43,41 @@ namespace cfg {
 			return bind::NONE;
 		}
 	}
+
+	std::vector<char> getReverseBind(bind bind) {
+		std::vector<char> out;
+
+		for (auto const& [input, binding]: bindings) {
+			if (binding == bind) {
+				out.push_back(input);
+			}
+		}
+
+		return out;
+	}
 	
 	void setBind(bind bind, char input) {
 		bindings[input] = bind;
+	}
+
+	std::string bindToFriendlyString(bind bind) {
+		switch (bind) {
+			case bind::GAME_LEFT:
+				return "Left";
+			case bind::GAME_RIGHT:
+				return "Right";
+			case bind::GAME_DOWN:
+				return "Down";
+			case bind::GAME_DROP:
+				return "Drop";
+			case bind::GAME_ROTATE:
+				return "Rotate";
+			case bind::GAME_PAUSE:
+				return "Pause";
+			case bind::GAME_QUIT:
+				return "Quit";
+			default:
+				return "(unknown)";
+		}
 	}
 }

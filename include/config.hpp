@@ -22,10 +22,10 @@ namespace cfg {
 
 	int loadConfig();
 
-	bind getBind(char input);
-	std::vector<char> getReverseBind(bind bind);
+	bind getBind(int input);
+	std::vector<int> getReverseBind(bind bind);
 
-	void setBind(bind bind, char input);
+	void setBind(bind bind, int input);
 
 	std::string bindToFriendlyString(bind bind);
 }

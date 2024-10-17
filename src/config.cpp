@@ -6,7 +6,7 @@
 #include <vector>
 
 namespace cfg {
-	std::map<char, bind> bindings;
+	std::map<int, bind> bindings;
 
 	int init() {
 		return loadConfig();
@@ -36,7 +36,7 @@ namespace cfg {
 		return ret;
 	}
 
-	bind getBind(char input) {
+	bind getBind(int input) {
 		if (bindings.contains(input)) {
 			return bindings.at(input);
 		} else {
@@ -44,8 +44,8 @@ namespace cfg {
 		}
 	}
 
-	std::vector<char> getReverseBind(bind bind) {
-		std::vector<char> out;
+	std::vector<int> getReverseBind(bind bind) {
+		std::vector<int> out;
 
 		for (auto const& [input, binding]: bindings) {
 			if (binding == bind) {
@@ -56,7 +56,7 @@ namespace cfg {
 		return out;
 	}
 	
-	void setBind(bind bind, char input) {
+	void setBind(bind bind, int input) {
 		bindings[input] = bind;
 	}
 

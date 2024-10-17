@@ -70,7 +70,7 @@ namespace game {
 	}
 
 	inputCodes handleInput(
-			char input,
+			int input,
 			ngin::playfield* p,
 			shp::polyomino** shape
 	) {
@@ -111,8 +111,8 @@ namespace game {
 		ngin::setPolynoPos(&p, shape, {0,0});
 
 		bool loop = true;
-		int currentCols = COLS;
-		int currentLines = LINES;
+		int currentCols = -1;
+		int currentLines = -1;
 		int timeoutMax = 500;
 		int timeout = timeoutMax;
 
@@ -133,7 +133,7 @@ namespace game {
 			gettimeofday(&startTime, NULL);
 
 			timeout(timeout);
-			char input = getch();
+			int input = getch();
 
 			gettimeofday(&endTime, NULL);
 

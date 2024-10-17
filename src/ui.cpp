@@ -153,11 +153,11 @@ namespace ui {
 	}
 
 	std::string getBindChar(cfg::bind bind) {
-		std::vector<char> chars = cfg::getReverseBind(bind);
+		std::vector<int> chars = cfg::getReverseBind(bind);
 
 		if (!chars.empty()) {
 			std::stringstream bindChar;
-			bindChar << "[" << chars.at(0) << "]";
+			bindChar << "[" << (char)chars.at(0) << "]";
 			return bindChar.str();
 		} else {
 			return "(none)";

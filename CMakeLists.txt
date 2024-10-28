@@ -4,16 +4,15 @@ project("grzetris"
 	VERSION 0.0.0
 )
 
-set(PROJECT_LIB_PATH "${PROJECT_SOURCE_DIR}/lib/")
-
 INCLUDE(FindPkgConfig)
+set(PROJECT_LIB_PATH "${PROJECT_SOURCE_DIR}/lib")
 
 find_package(Curses REQUIRED)
 
+include_directories("${PROJECT_LIB_PATH}/json-3.11.3/include")
+
 include_directories("include/")
-
 file(GLOB_RECURSE ${PROJECT_NAME}_SRC "src/*.cpp")
-
 
 add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_SRC})
 target_link_libraries(${PROJECT_NAME} ${CURSES_LIBRARIES})

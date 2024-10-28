@@ -81,3 +81,8 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+### Third party
+> See <LICENCE_THIRD_PARTY> for more information.
+
+- [JSON for Modern C++](https://github.com/nlohmann/json), under the MIT Licence.

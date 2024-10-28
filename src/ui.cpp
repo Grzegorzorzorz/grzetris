@@ -25,6 +25,7 @@ namespace ui {
 		cbreak();
 		noecho();
 		curs_set(0);
+		keypad(stdscr, TRUE);
 
 		if (has_colors()) {
 			start_color();
@@ -37,6 +38,7 @@ namespace ui {
 			init_pair(MAGENTA, COLOR_MAGENTA, COLOR_MAGENTA);
 			init_pair(WHITE, COLOR_WHITE, COLOR_WHITE);
 		}
+
 
 		return ret;
 	}

@@ -14,13 +14,13 @@ That something is **grzetris**!
 - Full geometric rotation
 - Next piece preview
 - Quick drop
+- Cool menu screen™
 
 ## Planned features
 - Customisable key binds
 - Scoring system
 - Leaderboard
 - Storing pieces
-- Cool menu screen™
 
 ## Platforms
 

@@ -19,12 +19,16 @@ namespace ui::menu {
 				n->prev = &m->nodes.at(i - 1);
 			} else if (isCircular) {
 				n->prev = &m->nodes.at(m->nodes.size() - 1);
+			} else {
+				n->prev = nullptr;
 			}
 
 			if (i != m->nodes.size() - 1) {
 				n->next = &m->nodes.at(i + 1);
 			} else if (isCircular) {
 				n->next = &m->nodes.at(0);
+			} else {
+				n->next = nullptr;
 			}
 		}
 
@@ -89,18 +93,22 @@ namespace ui::menu {
 
 		cfg::bind bind = cfg::getBind(input);
 
-		signal sig;
+		signal sig = NONE;
 
 		switch (bind) {
 			case cfg::bind::MENU_NEXT:
-				sig = m->selected->onFocusLost();
-				m->selected = m->selected->next;
-				sig = m->selected->onFocus();
+				if (m->selected->next != nullptr) {
+					sig = m->selected->onFocusLost();
+					m->selected = m->selected->next;
+					sig = m->selected->onFocus();
+				}
 				break;
 			case cfg::bind::MENU_PREV:
-				sig = m->selected->onFocusLost();
-				m->selected = m->selected->prev;
-				sig = m->selected->onFocus();
+				if (m->selected->prev != nullptr) {
+					sig = m->selected->onFocusLost();
+					m->selected = m->selected->prev;
+					sig = m->selected->onFocus();
+				}
 				break;
 			case cfg::bind::MENU_SELECT:
 				sig = m->selected->onSelect();

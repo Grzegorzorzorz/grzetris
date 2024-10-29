@@ -1,5 +1,5 @@
-#ifndef __UI_HPP__
-#define __UI_HPP__
+#ifndef __UI_MAIN_HPP__
+#define __UI_MAIN_HPP__
 
 #include "engine.hpp"
 

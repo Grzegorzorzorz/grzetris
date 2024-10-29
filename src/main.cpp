@@ -1,6 +1,6 @@
 #include "config.hpp"
 #include "game.hpp"
-#include "ui.hpp"
+#include "ui/main.hpp"
 
 int main(int argc, const char** argv) {
 	cfg::init();

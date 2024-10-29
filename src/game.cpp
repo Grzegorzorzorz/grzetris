@@ -1,7 +1,7 @@
 #include "game.hpp"
 
 #include "config.hpp"
-#include "ui.hpp"
+#include "ui/main.hpp"
 
 #include <sys/time.h>
 

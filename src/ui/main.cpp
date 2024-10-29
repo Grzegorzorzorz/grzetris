@@ -1,4 +1,4 @@
-#include "ui.hpp"
+#include "ui/main.hpp"
 
 #include "colour.hpp"
 #include "config.hpp"

@@ -116,14 +116,12 @@ namespace game {
 		int timeoutMax = 500;
 		int timeout = 0;
 
-		clear();
-		ui::drawPlayfield(&p);
-		ui::drawControls();
-
 		while (loop) {
 			if (currentCols != COLS || currentLines != LINES) {
 				currentCols = COLS;
 				currentLines = LINES;
+				clear();
+				refresh();
 			}
 			ui::drawPlayfield(&p);
 			ui::drawNextShape(nextShape);

@@ -7,13 +7,7 @@ int main(int argc, const char** argv) {
 	ui::init();
 
 	ui::menu::menu main = ui::menu::initMain();
-
-	bool doRun = true;
-	while (doRun) {
-		ui::menu::drawMain(&main);
-		int ret = ui::menu::runMenu(&main);
-		doRun = ret != 1;
-	}
+	ui::menu::run(&main, ui::menu::rendererMain);
 
 	ui::deinit();
 	cfg::deinit();

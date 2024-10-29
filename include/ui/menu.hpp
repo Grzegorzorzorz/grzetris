@@ -30,9 +30,11 @@ namespace ui::menu {
 
 	menu initMain();
 
-	int runMenu(menu* m);
+	int run(menu* m, std::function<int(menu*)> renderer);
 
-	int drawMain(menu* main);
+	int inputDriver(menu* m);
+
+	int rendererMain(menu* main);
 }
 
 #endif

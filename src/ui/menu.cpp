@@ -72,7 +72,19 @@ namespace ui::menu {
 		return main;
 	}
 
-	int runMenu(menu *m) {
+	int run(menu* m, std::function<int(menu*)> renderer) {
+		timeout(-1);
+		bool doRun = true;
+		while (doRun) {
+			renderer(m);
+			int ret = inputDriver(m);
+			doRun = ret != 1;
+		}
+
+		return 0;
+	}
+
+	int inputDriver(menu *m) {
 		int input = getch();
 
 		cfg::bind bind = cfg::getBind(input);
@@ -108,7 +120,7 @@ namespace ui::menu {
 		}
 	}
 
-	int drawMain(menu* main) {
+	int rendererMain(menu* main) {
 		const int WIDTH = 16;
 		const int HEIGHT = 10;
 		WINDOW* optionsWin

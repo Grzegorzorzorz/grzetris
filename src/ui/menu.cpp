@@ -51,6 +51,7 @@ namespace ui::menu {
 		main.nodes.push_back(initNode());
 		main.nodes.push_back(initNode());
 		main.nodes.push_back(initNode());
+		main.nodes.push_back(initNode());
 
 
 		main.nodes[0].text = "Play";
@@ -58,8 +59,10 @@ namespace ui::menu {
 
 		main.nodes[1].text = "Settings";
 
-		main.nodes[2].text = "Quit";
-		main.nodes[2].onSelect = []{return SIGQUIT;};
+		main.nodes[2].text = "Info";
+
+		main.nodes[3].text = "Quit";
+		main.nodes[3].onSelect = []{return SIGQUIT;};
 
 
 		linkNodes(&main);

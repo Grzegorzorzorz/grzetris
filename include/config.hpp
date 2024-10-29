@@ -14,6 +14,9 @@ namespace cfg {
 		GAME_PAUSE,
 		GAME_QUIT,
 		GAME_NO_ACTION,
+		MENU_NEXT,
+		MENU_PREV,
+		MENU_SELECT,
 		NONE
 	};
 

@@ -57,10 +57,6 @@ namespace ui {
 		return ret;
 	}
 
-	inline int centre(int parentSize, int size) {
-		return (parentSize - size) / 2;
-	}
-
 	int drawStats() {
 		WINDOW *statsWin = newwin(15, 17, 2, 10);
 		refresh();

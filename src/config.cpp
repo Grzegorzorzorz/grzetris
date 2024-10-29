@@ -9,6 +9,8 @@
 
 #include <nlohmann/json.hpp>
 
+#include <iostream>
+
 namespace cfg {
 	namespace sfs = std::filesystem;
 	using json = nlohmann::json;
@@ -54,6 +56,10 @@ namespace cfg {
 			bindings['r'] = bind::GAME_ROTATE;
 			bindings['q'] = bind::GAME_QUIT;
 
+			bindings[KEY_DOWN] = bind::MENU_NEXT;
+			bindings[KEY_UP] = bind::MENU_PREV;
+			bindings['\n'] = bind::MENU_SELECT;
+
 			bindings[ERR] = bind::GAME_NO_ACTION;
 
 			return 1;
@@ -91,8 +97,7 @@ namespace cfg {
 		
 		for (auto& [key, action]: bindings) {
 			if (bindings.at(key) == bind::GAME_NO_ACTION
-					|| bindings.at(key) == bind::NONE)
-			{
+					|| bindings.at(key) == bind::NONE) {
 				continue;
 			}
 			bindJson[bindToString(action)] = key;
@@ -108,8 +113,7 @@ namespace cfg {
 		return -1;
 		#endif
 		sfs::create_directories(CONFIG_PATH.parent_path());
-		// We can't create the directory: we can't handle this system.
-		return 1;
+		return 0;
 	}
 
 	int saveConfig() {
@@ -164,6 +168,12 @@ namespace cfg {
 			return bind::GAME_PAUSE;
 		} else if (name == "GAME_QUIT") {
 			return bind::GAME_QUIT;
+		} else if (name == "MENU_NEXT") {
+			return bind::MENU_NEXT;
+		} else if (name == "MENU_PREV") {
+			return bind::MENU_PREV;
+		} else if (name == "MENU_SELECT") {
+			return bind::MENU_SELECT;
 		} else {
 			return bind::NONE;
 		}
@@ -185,6 +195,12 @@ namespace cfg {
 				return "GAME_PAUSE";
 			case bind::GAME_QUIT:
 				return "GAME_QUIT";
+			case bind::MENU_NEXT:
+				return "MENU_NEXT";
+			case bind::MENU_PREV:
+				return "MENU_PREV";
+			case bind::MENU_SELECT:
+				return "MENU_SELECT";
 			case bind::NONE:
 			default:
 				return "NONE";

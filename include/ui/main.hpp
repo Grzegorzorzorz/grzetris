@@ -9,6 +9,10 @@ namespace ui {
 	int init();
 	int deinit();
 
+	inline int centre(int parentSize, int size) {
+		return (parentSize - size) / 2;
+	}
+
 	int drawPlayfield(const ngin::playfield* p);
 	int drawNextShape(const shp::polyomino* shape);
 	int drawControls();

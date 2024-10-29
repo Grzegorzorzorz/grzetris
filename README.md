@@ -22,6 +22,12 @@ That something is **grzetris**!
 - Storing pieces
 - Cool menu screen™
 
+## Platforms
+
+- GNU/Linux
+- macOS (mostly functional, barely tested)
+- Cygwin/Windows (untested)
+
 ## Installation
 
 Unfortunately, grzetris is not currently packaged for any system, as it's

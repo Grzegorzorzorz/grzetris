@@ -114,8 +114,9 @@ namespace game {
 		int currentCols = -1;
 		int currentLines = -1;
 		int timeoutMax = 500;
-		int timeout = timeoutMax;
+		int timeout = 0;
 
+		clear();
 		ui::drawPlayfield(&p);
 		ui::drawControls();
 
@@ -123,7 +124,6 @@ namespace game {
 			if (currentCols != COLS || currentLines != LINES) {
 				currentCols = COLS;
 				currentLines = LINES;
-				clear();
 			}
 			ui::drawPlayfield(&p);
 			ui::drawNextShape(nextShape);

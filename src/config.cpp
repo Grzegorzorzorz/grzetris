@@ -1,5 +1,6 @@
 #include "config.hpp"
 
+#include <filesystem>
 #include <fstream>
 #include <map>
 #include <ncurses.h>
@@ -9,9 +10,29 @@
 #include <nlohmann/json.hpp>
 
 namespace cfg {
+	namespace sfs = std::filesystem;
 	using json = nlohmann::json;
 
-	const std::string CONFIG_FILE = "./config.json";
+	const std::string CONFIG_FILE = "config.json";
+	const sfs::path CONFIG_PATH	= sfs::path(getenv("HOME"))
+#ifdef BUILD_RELEASE
+	#if defined (PLAT_UNIX)
+			.append(".config")
+			.append("grzetris")
+			.append(CONFIG_FILE);
+	#elif defined (PLAT_APPLE)
+	// TODO: Test this on an actual Mac :)
+			.append("Library")
+			.append("Application Support")
+			.append("net.grzeg.grzetris")
+			.append(CONFIG_FILE);
+	#else
+			.append(CONFIG_FILE)
+	#endif
+#else
+	// Use the current dir for debugging the config
+	= std::filesystem::current_path().append(CONFIG_FILE);
+#endif
 
 	std::map<int, bind> bindings;
 
@@ -19,7 +40,9 @@ namespace cfg {
 		return loadConfig();
 	}
 
-	void deinit() {}
+	void deinit() {
+		saveConfig();
+	}
 
 	int loadBindings(const json* config) {
 		// Fallback bindings
@@ -51,7 +74,7 @@ namespace cfg {
 		json config = nullptr;
 
 		std::ifstream cfgFile;
-		cfgFile.open(CONFIG_FILE);
+		cfgFile.open(CONFIG_PATH);
 
 		if (cfgFile.peek() != std::ifstream::traits_type::eof()) {
 			config = json::parse(cfgFile);
@@ -80,12 +103,22 @@ namespace cfg {
 		return 0;
 	}
 
+	int createConfigDir() {
+		#ifdef BUILD_DEBUG
+		return -1;
+		#endif
+		sfs::create_directories(CONFIG_PATH.parent_path());
+		// We can't create the directory: we can't handle this system.
+		return 1;
+	}
+
 	int saveConfig() {
 		json config;
 		saveBindings(&config);
 
+		createConfigDir();
 		std::ofstream configFile;
-		configFile.open(CONFIG_FILE);
+		configFile.open(CONFIG_PATH);
 		configFile << config.dump(4);
 		configFile.close();
 

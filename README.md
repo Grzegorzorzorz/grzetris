@@ -86,3 +86,4 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 > See [LICENCE_THIRD_PARTY](LICENCE_THIRD_PARTY) for more information.
 
 - [JSON for Modern C++](https://github.com/nlohmann/json), under the MIT Licence.
+- [ncurses](https://invisible-island.net/ncurses/), under the ncurses Licence.

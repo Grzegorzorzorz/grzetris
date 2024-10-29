@@ -114,6 +114,10 @@ namespace ui::menu {
 		clear();
 		refresh();
 
+		WINDOW* logoWin = initLogo();
+		mvwin(logoWin, centre(LINES, 9) * 0.5, centre(COLS, 2 * 38));
+		wrefresh(logoWin);
+
 		for (int i = 0; i < main->nodes.size(); i++) {
 			node* n = &main->nodes.at(i);
 
@@ -133,6 +137,7 @@ namespace ui::menu {
 
 		wrefresh(optionsWin);
 		delwin(optionsWin);
+		delwin(logoWin);
 		return 0;
 
 	}

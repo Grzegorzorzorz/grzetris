@@ -3,6 +3,7 @@
 #include "colour.hpp"
 #include "config.hpp"
 #include "engine.hpp"
+#include "maths.hpp"
 
 #include <ncurses.h>
 #include <map>
@@ -66,6 +67,100 @@ namespace ui {
 		getch();
 
 		return 0;
+	}
+
+	WINDOW* initLogo() {
+		WINDOW* logoWin = newwin(9, 2 * 38, 0, 0);
+
+		// G
+		mth::vect2D origin = {3,2};
+		wattron(logoWin, COLOR_PAIR(CYAN));
+		mvwaddstr(logoWin, origin.y, origin.x + 2, "XXXXXX");
+		mvwaddstr(logoWin, origin.y + 1, origin.x, "XX");
+		mvwaddstr(logoWin, origin.y + 2, origin.x, "XX");
+		mvwaddstr(logoWin, origin.y + 2, origin.x + 4, "XXXX");
+		mvwaddstr(logoWin, origin.y + 3, origin.x, "XX");
+		mvwaddstr(logoWin, origin.y + 3, origin.x + 6, "XX");
+		mvwaddstr(logoWin, origin.y + 4, origin.x + 2, "XXXX");
+		wattroff(logoWin, COLOR_PAIR(CYAN));
+
+		// R
+		origin.x += 10;
+		wattron(logoWin, COLOR_PAIR(BLUE));
+		mvwaddstr(logoWin, origin.y, origin.x, "XXXXXX");
+		mvwaddstr(logoWin, origin.y + 1, origin.x, "XX");
+		mvwaddstr(logoWin, origin.y + 1, origin.x + 6, "XX");
+		mvwaddstr(logoWin, origin.y + 2, origin.x, "XXXXXX");
+		mvwaddstr(logoWin, origin.y + 3, origin.x, "XX");
+		mvwaddstr(logoWin, origin.y + 3, origin.x + 4, "XX");
+		mvwaddstr(logoWin, origin.y + 4, origin.x, "XX");
+		mvwaddstr(logoWin, origin.y + 4, origin.x + 6, "XX");
+		wattroff(logoWin, COLOR_PAIR(BLUE));
+
+		// Z
+		origin.x += 10;
+		wattron(logoWin, COLOR_PAIR(MAGENTA));
+		mvwaddstr(logoWin, origin.y, origin.x, "XXXXXX");
+		mvwaddstr(logoWin, origin.y + 1, origin.x + 4, "XX");
+		mvwaddstr(logoWin, origin.y + 2, origin.x + 2, "XX");
+		mvwaddstr(logoWin, origin.y + 3, origin.x, "XX");
+		mvwaddstr(logoWin, origin.y + 4, origin.x, "XXXXXX");
+		wattroff(logoWin, COLOR_PAIR(MAGENTA));
+		
+		// E
+		origin.x += 8;
+		wattron(logoWin, COLOR_PAIR(RED));
+		mvwaddstr(logoWin, origin.y, origin.x, "XXXXXX");
+		mvwaddstr(logoWin, origin.y + 1, origin.x, "XX");
+		mvwaddstr(logoWin, origin.y + 2, origin.x, "XXXX");
+		mvwaddstr(logoWin, origin.y + 3, origin.x, "XX");
+		mvwaddstr(logoWin, origin.y + 4, origin.x, "XXXXXX");
+		wattroff(logoWin, COLOR_PAIR(RED));
+
+		// T
+		origin.x += 8;
+		wattron(logoWin, COLOR_PAIR(YELLOW));
+		mvwaddstr(logoWin, origin.y, origin.x, "XXXXXX");
+		mvwaddstr(logoWin, origin.y + 1, origin.x + 2, "XX");
+		mvwaddstr(logoWin, origin.y + 2, origin.x + 2, "XX");
+		mvwaddstr(logoWin, origin.y + 3, origin.x + 2, "XX");
+		mvwaddstr(logoWin, origin.y + 4, origin.x + 2, "XX");
+		wattroff(logoWin, COLOR_PAIR(YELLOW));
+
+		// R
+		origin.x += 8;
+		wattron(logoWin, COLOR_PAIR(GREEN));
+		mvwaddstr(logoWin, origin.y, origin.x, "XXXXXX");
+		mvwaddstr(logoWin, origin.y + 1, origin.x, "XX");
+		mvwaddstr(logoWin, origin.y + 1, origin.x + 6, "XX");
+		mvwaddstr(logoWin, origin.y + 2, origin.x, "XXXXXX");
+		mvwaddstr(logoWin, origin.y + 3, origin.x, "XX");
+		mvwaddstr(logoWin, origin.y + 3, origin.x + 4, "XX");
+		mvwaddstr(logoWin, origin.y + 4, origin.x, "XX");
+		mvwaddstr(logoWin, origin.y + 4, origin.x + 6, "XX");
+		wattroff(logoWin, COLOR_PAIR(GREEN));
+
+		// I
+		origin.x += 10;
+		wattron(logoWin, COLOR_PAIR(BLUE));
+		mvwaddstr(logoWin, origin.y, origin.x, "XXXXXX");
+		mvwaddstr(logoWin, origin.y + 1, origin.x + 2, "XX");
+		mvwaddstr(logoWin, origin.y + 2, origin.x + 2, "XX");
+		mvwaddstr(logoWin, origin.y + 3, origin.x + 2, "XX");
+		mvwaddstr(logoWin, origin.y + 4, origin.x, "XXXXXX");
+		wattroff(logoWin, COLOR_PAIR(BLUE));
+
+		// S
+		origin.x += 8;
+		wattron(logoWin, COLOR_PAIR(MAGENTA));
+		mvwaddstr(logoWin, origin.y, origin.x + 2, "XXXXXX");
+		mvwaddstr(logoWin, origin.y + 1, origin.x, "XX");
+		mvwaddstr(logoWin, origin.y + 2, origin.x + 2, "XXXX");
+		mvwaddstr(logoWin, origin.y + 3, origin.x + 6, "XX");
+		mvwaddstr(logoWin, origin.y + 4, origin.x, "XXXXXX");
+		wattroff(logoWin, COLOR_PAIR(MAGENTA));
+
+		return logoWin;
 	}
 
 	int drawPlayfield(const ngin::playfield *p) {

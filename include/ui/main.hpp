@@ -13,6 +13,8 @@ namespace ui {
 		return (parentSize - size) / 2;
 	}
 
+	WINDOW* initLogo();
+
 	int drawPlayfield(const ngin::playfield* p);
 	int drawNextShape(const shp::polyomino* shape);
 	int drawControls();

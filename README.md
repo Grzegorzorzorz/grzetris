@@ -70,6 +70,7 @@ make -j25
 ```
 
 ## Licence
+> See [COPYING](COPYING) for more information.
 
 **grzetris**, a *tris-like
 

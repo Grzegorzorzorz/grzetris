@@ -1,8 +1,12 @@
 #include "ui/menu.hpp"
 
-#include "config.hpp"
-#include "game.hpp"
+#include "ui/input.hpp"
 #include "ui/main.hpp"
+
+#include "game.hpp"
+
+#include <chrono>
+#include <thread>
 
 #include <ncurses.h>
 
@@ -77,40 +81,48 @@ namespace ui::menu {
 	}
 
 	int run(menu* m, std::function<int(menu*)> renderer) {
-		timeout(-1);
 		bool doRun = true;
+		input::setCurrentMap(input::map::MENU);
+
+		renderer(m);
 		while (doRun) {
-			renderer(m);
-			int ret = inputDriver(m);
-			doRun = ret != 1;
+			input::fetch();
+			while (input::hasInput()) {
+				int ret = inputDriver(m);
+				doRun = ret != 1;
+				if (!doRun) {
+					break;
+				}
+				renderer(m);
+			}
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		}
 
 		return 0;
 	}
 
 	int inputDriver(menu *m) {
-		int input = getch();
-
-		cfg::bind bind = cfg::getBind(input);
+		input::bind bind = input::getNext();
 
 		signal sig = NONE;
 
 		switch (bind) {
-			case cfg::bind::MENU_NEXT:
+			case input::bind::MENU_NEXT:
 				if (m->selected->next != nullptr) {
 					sig = m->selected->onFocusLost();
 					m->selected = m->selected->next;
 					sig = m->selected->onFocus();
 				}
 				break;
-			case cfg::bind::MENU_PREV:
+			case input::bind::MENU_PREV:
 				if (m->selected->prev != nullptr) {
 					sig = m->selected->onFocusLost();
 					m->selected = m->selected->prev;
 					sig = m->selected->onFocus();
 				}
 				break;
-			case cfg::bind::MENU_SELECT:
+			case input::bind::MENU_SELECT:
 				sig = m->selected->onSelect();
 				break;
 			default:

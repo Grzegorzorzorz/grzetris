@@ -1,5 +1,7 @@
 #include "config.hpp"
 
+#include "ui/input.hpp"
+
 #include <filesystem>
 #include <fstream>
 #include <map>
@@ -8,8 +10,6 @@
 #include <vector>
 
 #include <nlohmann/json.hpp>
-
-#include <iostream>
 
 namespace cfg {
 	namespace sfs = std::filesystem;
@@ -46,32 +46,53 @@ namespace cfg {
 		saveConfig();
 	}
 
+	void setDefaultBinds() {
+		namespace ipt = ui::input;
+
+		ipt::setCurrentMap(ipt::map::GAME);
+		ipt::setBind(ipt::bind::GAME_LEFT, ipt::code::KEY_H);
+		ipt::setBind(ipt::bind::GAME_DOWN, ipt::code::KEY_J);
+		ipt::setBind(ipt::bind::GAME_RIGHT, ipt::code::KEY_K);
+		ipt::setBind(ipt::bind::GAME_DROP, ipt::code::KEY_SPACE);
+		ipt::setBind(ipt::bind::GAME_ROTATE, ipt::code::KEY_R);
+		ipt::setBind(ipt::bind::GAME_QUIT, ipt::code::KEY_Q);
+		ipt::setBind(ipt::bind::GAME_NO_ACTION, ipt::code::ERROR);
+
+		ipt::setCurrentMap(ipt::map::MENU);
+		ipt::setBind(ipt::bind::MENU_NEXT, ui::input::code::KEY_J);
+		ipt::setBind(ipt::bind::MENU_PREV, ui::input::code::KEY_K);
+		ipt::setBind(ipt::bind::MENU_SELECT, ui::input::code::KEY_RETURN);
+
+		ipt::setCurrentMap(ipt::map::NONE);
+	}
+
 	int loadBindings(const json* config) {
+		namespace ipt = ui::input;
+
 		// Fallback bindings
 		if (config == nullptr || !config->contains("bindings")) {
-			bindings['h'] = bind::GAME_LEFT;
-			bindings['k'] = bind::GAME_RIGHT;
-			bindings['j'] = bind::GAME_DOWN;
-			bindings[' '] = bind::GAME_DROP;
-			bindings['r'] = bind::GAME_ROTATE;
-			bindings['q'] = bind::GAME_QUIT;
-
-			bindings[KEY_DOWN] = bind::MENU_NEXT;
-			bindings[KEY_UP] = bind::MENU_PREV;
-			bindings['\n'] = bind::MENU_SELECT;
-
-			bindings[ERR] = bind::GAME_NO_ACTION;
-
+			setDefaultBinds();
 			return 1;
 		}
 
-		json bindJson = config->at("bindings");
+		json bindJson = json::parse(config->at("bindings").dump());
 
-		for (auto& [action, key]: bindJson.items()) {
-			bindings[key] = stringToBind(action);
+		for (auto& [map, bindings]: bindJson.items()) {
+			if (ipt::stringToMap(map) == ipt::map::NONE) {
+				continue;
+			}
+
+			ipt::setCurrentMap(ipt::stringToMap(map));
+			for (auto& [bind, code]: bindings.items()) {
+				ipt::setBind(ipt::stringToBind(bind), ipt::stringToCode(code));
+			}
 		}
 
-		bindings[ERR] = bind::GAME_NO_ACTION;
+		// Set default must have values.
+		ipt::setCurrentMap(ipt::map::GAME);
+		ipt::setBind(ipt::bind::GAME_NO_ACTION, ipt::code::ERROR);
+
+		ipt::setCurrentMap(ipt::map::NONE);
 
 		return 0;
 	}
@@ -93,15 +114,32 @@ namespace cfg {
 	}
 
 	int saveBindings(json* config) {
+		namespace ipt = ui::input;
+
 		json bindJson;
-		
-		for (auto& [key, action]: bindings) {
-			if (bindings.at(key) == bind::GAME_NO_ACTION
-					|| bindings.at(key) == bind::NONE) {
+
+		for (auto& [map, bindings]: ipt::getBindMap()) {
+			if (map == ipt::map::NONE) {
 				continue;
 			}
-			bindJson[bindToString(action)] = key;
+
+			for (auto& [code, bind]: bindings) {
+				if (code == ipt::code::ERROR
+						|| code == ipt::code::NOT_IMPLEMENTED) {
+					continue;
+				}
+				bindJson
+					[ipt::mapToString(map)]
+					[ipt::bindToString(bind)] = ipt::codeToString(code);
+			}
 		}
+		//for (auto& [key, action]: bindings) {
+		//	if (bindings.at(key) == bind::GAME_NO_ACTION
+		//			|| bindings.at(key) == bind::NONE) {
+		//		continue;
+		//	}
+		//	bindJson[bindToString(action)] = key;
+		//}
 
 		(*config)["bindings"] = bindJson;
 

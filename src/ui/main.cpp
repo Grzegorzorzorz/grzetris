@@ -28,7 +28,6 @@ namespace ui {
 		cbreak();
 		noecho();
 		curs_set(0);
-		keypad(stdscr, TRUE);
 
 		if (has_colors()) {
 			start_color();

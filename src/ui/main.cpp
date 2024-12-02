@@ -1,5 +1,7 @@
 #include "ui/main.hpp"
 
+#include "ui/input.hpp"
+
 #include "colour.hpp"
 #include "config.hpp"
 #include "engine.hpp"
@@ -40,12 +42,15 @@ namespace ui {
 			init_pair(WHITE, COLOR_WHITE, COLOR_WHITE);
 		}
 
+		input::init();
 
 		return ret;
 	}
 	
 	int deinit() {
 		int ret = 0;
+
+		input::deinit();
 
 		delwin(stdscr);
 		for (auto& [key, win]: windows) {

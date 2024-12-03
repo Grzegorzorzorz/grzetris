@@ -4,10 +4,8 @@
 
 #include <filesystem>
 #include <fstream>
-#include <map>
 #include <ncurses.h>
 #include <string>
-#include <vector>
 
 #include <nlohmann/json.hpp>
 
@@ -35,8 +33,6 @@ namespace cfg {
 	// Use the current dir for debugging the config
 	= std::filesystem::current_path().append(CONFIG_FILE);
 #endif
-
-	std::map<int, bind> bindings;
 
 	int init() {
 		return loadConfig();

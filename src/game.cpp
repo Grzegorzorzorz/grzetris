@@ -53,17 +53,6 @@ namespace game {
 		return 0;
 	}
 
-	inputCodes handleInput(
-			ngin::playfield* p,
-			shp::polyomino** shape
-	) {
-		namespace ipt = ui::input;
-
-		ipt::bind bind = ipt::getNext();
-
-		return NOMINAL;
-	}
-
 	void run() {
 		namespace sc = std::chrono;
 		ngin::init();

@@ -35,10 +35,14 @@ not mature enough yet. In the meantime, you can build it locally, as described
 below.
 
 ### Dependencies
-- `>=ncurses-6.4` (will probably work on older versions)
+#### Run time
+- `>=ncurses-6.3` (will probably work on older versions)
+
+#### Build
+- `>=cmake-3.20`
+- `git`
 
 ### Building
-> Requires `>=cmake-3.20`
 
 1. Clone the repository:
 ```shell
@@ -61,7 +65,7 @@ make -j25
 ./grzetris
 ```
 
-#### Quick build:
+#### Quick build
 ```shell
 git clone https://github.com/Grzegorzorzorz/grzetris.git && cd grzetris
 mkdir build && cd build

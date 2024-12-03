@@ -82,7 +82,6 @@ namespace ui::menu {
 
 	int run(menu* m, std::function<int(menu*)> renderer) {
 		bool doRun = true;
-		input::setCurrentMap(input::map::MENU);
 
 		renderer(m);
 		while (doRun) {
@@ -103,6 +102,7 @@ namespace ui::menu {
 	}
 
 	int inputDriver(menu *m) {
+		input::setCurrentMap(input::map::MENU);
 		input::bind bind = input::getNext();
 
 		signal sig = NONE;

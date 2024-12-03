@@ -1,9 +1,10 @@
 #include "game.hpp"
 
-#include "config.hpp"
 #include "ui/main.hpp"
+#include "ui/input.hpp"
 
-#include <sys/time.h>
+#include <chrono>
+#include <thread>
 
 namespace game {
 	enum inputCodes {
@@ -12,12 +13,20 @@ namespace game {
 		QUIT
 	};
 
+	enum timerID {
+		TIMER_FRAME,
+		TIMER_TIMEOUT
+	};
+
+	struct timer {
+		std::chrono::time_point<std::chrono::steady_clock> post;
+		std::chrono::milliseconds delta;
+	};
+
 	int timeoutAction(
 			ngin::playfield* p,
 			shp::polyomino** shape,
-			shp::polyomino** nextShape,
-			int* timeout,
-			int* timeoutMax
+			shp::polyomino** nextShape
 	) {
 		if (ngin::movePolyno(p, *shape, {0,1})) {
 			return 0;
@@ -28,8 +37,6 @@ namespace game {
 		if (ngin::hasFilledRow(p)) {
 
 			std::vector<bool> filledRows = ngin::checkFilledRows(p);
-
-			*timeout = *timeoutMax;
 
 			ngin::clearFilledRows(p, filledRows);
 		}
@@ -46,63 +53,21 @@ namespace game {
 		return 0;
 	}
 
-	int calculateTimeout(
-			timeval startTime,
-			timeval endTime,
-			int timeout,
-			int timeoutMax
-	) {
-		timeval deltaTime;
-		deltaTime.tv_sec = endTime.tv_sec - startTime.tv_sec;
-		deltaTime.tv_usec = endTime.tv_usec - startTime.tv_usec;
-
-		// carry second if micro is negative
-		if (deltaTime.tv_usec < 0) {
-			deltaTime.tv_usec += 1000000;
-			deltaTime.tv_sec--;
-		}
-
-		if ((timeout -= deltaTime.tv_usec / 1000) <= 0) {
-			timeout = timeoutMax;
-		}
-
-		return timeout;
-	}
-
 	inputCodes handleInput(
-			int input,
 			ngin::playfield* p,
 			shp::polyomino** shape
 	) {
-			switch (cfg::getBind(input)) {
-				case cfg::bind::GAME_QUIT:
-					return QUIT;
+		namespace ipt = ui::input;
 
-				case cfg::bind::GAME_LEFT:
-					ngin::movePolyno(p, *shape, {-1,0});
-					break;
-				case cfg::bind::GAME_RIGHT:
-					ngin::movePolyno(p, *shape, {1,0});
-					break;
+		ipt::bind bind = ipt::getNext();
 
-				case cfg::bind::GAME_ROTATE:
-					ngin::rotate(p, shape);
-					break;
-
-				case cfg::bind::GAME_DROP:
-					ngin::dropPolyno(p, *shape);
-				case cfg::bind::GAME_DOWN:
-				case cfg::bind::GAME_NO_ACTION:
-					return TIMEOUT;
-
-				default:
-					break;
-			}
-			return NOMINAL;
+		return NOMINAL;
 	}
 
 	void run() {
+		namespace sc = std::chrono;
 		ngin::init();
+
 
 		// Basic setup.
 		ngin::playfield p = ngin::initPlayfield(ngin::PLAYER_ONE, 20, 10);
@@ -113,51 +78,81 @@ namespace game {
 		bool loop = true;
 		int currentCols = -1;
 		int currentLines = -1;
-		int timeoutMax = 500;
+		int timeoutMax = 400;
 		int timeout = 0;
 
+		std::map<timerID, timer> timers;
+
+		sc::time_point<sc::steady_clock> pre = sc::steady_clock::now();
+		timers[TIMER_FRAME] = {
+			sc::steady_clock::now(),
+			sc::milliseconds(0)
+		};
+
+		timers[TIMER_TIMEOUT] = {
+			sc::steady_clock::now(),
+			sc::duration_cast<sc::milliseconds>(pre.time_since_epoch())
+		};
+
 		while (loop) {
+			pre = sc::steady_clock::now();
+			for (auto [id, timer] : timers) {
+				timers[id].delta = sc::duration_cast<sc::milliseconds>(
+						pre.time_since_epoch()
+						- timers[id].post.time_since_epoch());
+			}
+
 			if (currentCols != COLS || currentLines != LINES) {
 				currentCols = COLS;
 				currentLines = LINES;
 				clear();
 				refresh();
 			}
-			ui::drawPlayfield(&p);
-			ui::drawNextShape(nextShape);
-			ui::drawControls();
 
-			timeval startTime, endTime;
-			gettimeofday(&startTime, NULL);
-
-			timeout(timeout);
-			int input = getch();
-
-			gettimeofday(&endTime, NULL);
-
-			// check if we timed out.
-			if (input == ERR) {
-				timeout = timeoutMax;
-			} else { 
-				timeout = calculateTimeout(
-						startTime, endTime, timeout, timeoutMax);
-			}
-			switch (handleInput(input, &p, &shape)) {
-				case NOMINAL:
-					break;
-
-				case QUIT:
-					loop = false;
-					break;
-
-				case TIMEOUT:
-					int ret = timeoutAction(
-							&p, &shape, &nextShape, &timeout, &timeoutMax);
-
-					if (ret == 1) {
+			ui::input::fetch();
+			while (ui::input::hasInput()) {
+				namespace ipt = ui::input;
+				ipt::setCurrentMap(ui::input::map::GAME);
+				ipt::bind bind = ipt::getNext();
+				switch (bind) {
+					case ipt::bind::GAME_QUIT:
 						loop = false;
-					}
+						break;
+					case ipt::bind::GAME_LEFT:
+						ngin::movePolyno(&p, shape, {-1,0});
+						break;
+					case ipt::bind::GAME_RIGHT:
+						ngin::movePolyno(&p, shape, {1,0});
+						break;
+
+					case ipt::bind::GAME_ROTATE:
+						ngin::rotate(&p, &shape);
+						break;
+
+					case ipt::bind::GAME_DROP:
+						ngin::dropPolyno(&p, shape);
+					case ipt::bind::GAME_DOWN:
+					case ipt::bind::GAME_NO_ACTION:
+						timeoutAction(&p, &shape, &nextShape);
+						break;
+					default:
+						break;
+				}
 			}
+
+			if (timers.at(TIMER_FRAME).delta > sc::milliseconds(16)) {
+				ui::drawPlayfield(&p);
+				ui::drawNextShape(nextShape);
+				ui::drawControls();
+				timers[TIMER_FRAME].post = sc::steady_clock::now();
+			}
+
+			if (timers.at(TIMER_TIMEOUT).delta > sc::milliseconds(timeoutMax)) {
+				timeoutAction(&p, &shape, &nextShape);
+				timers[TIMER_TIMEOUT].post = sc::steady_clock::now();
+			}
+
+			std::this_thread::sleep_for(sc::milliseconds(1));
 		}
 		shp::deinitPolyomino(&shape);
 		shp::deinitPolyomino(&nextShape);

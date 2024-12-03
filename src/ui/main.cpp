@@ -3,7 +3,6 @@
 #include "ui/input.hpp"
 
 #include "colour.hpp"
-#include "config.hpp"
 #include "engine.hpp"
 #include "maths.hpp"
 
@@ -30,6 +29,7 @@ namespace ui {
 		curs_set(0);
 
 		if (has_colors()) {
+
 			start_color();
 
 			init_pair(RED, COLOR_RED, COLOR_RED);
@@ -249,13 +249,16 @@ namespace ui {
 		return 0;
 	}
 
-	std::string getBindChar(cfg::bind bind) {
-		std::vector<int> chars = cfg::getReverseBind(bind);
+	std::string getBindChar(input::bind bind) {
+		std::vector<input::code> keyCodes = input::getReverseBind(bind);
 
-		if (!chars.empty()) {
-			std::stringstream bindChar;
-			bindChar << "[" << (char)chars.at(0) << "]";
-			return bindChar.str();
+		if (!keyCodes.empty()) {
+			std::stringstream bindName;
+			bindName
+				<< "["
+				<< input::codeToFriendlyString(keyCodes.at(0))
+				<< "]";
+			return bindName.str();
 		} else {
 			return "(none)";
 		}
@@ -287,20 +290,20 @@ namespace ui {
 		cursorLine += 1;
 
 		// List of binds to render
-		cfg::bind gameBinds[] = {
-			cfg::bind::GAME_LEFT,
-			cfg::bind::GAME_RIGHT,
-			cfg::bind::GAME_DOWN,
-			cfg::bind::NONE,
-			cfg::bind::GAME_DROP,
-			cfg::bind::GAME_ROTATE,
-			cfg::bind::NONE,
-			cfg::bind::GAME_PAUSE,
-			cfg::bind::GAME_QUIT,
+		input::bind gameBinds[] = {
+			input::bind::GAME_LEFT,
+			input::bind::GAME_RIGHT,
+			input::bind::GAME_DOWN,
+			input::bind::NONE,
+			input::bind::GAME_DROP,
+			input::bind::GAME_ROTATE,
+			input::bind::NONE,
+			input::bind::GAME_PAUSE,
+			input::bind::GAME_QUIT,
 		};
 
-		for (cfg::bind bind: gameBinds) {
-			if (bind == cfg::bind::NONE) {
+		for (input::bind bind: gameBinds) {
+			if (bind == input::bind::NONE) {
 				cursorLine++;
 				continue;
 			}
@@ -309,7 +312,7 @@ namespace ui {
 					controlsWin,
 					++cursorLine,
 					3,
-					cfg::bindToFriendlyString(bind).c_str());
+					input::bindToFriendlyString(bind).c_str());
 			mvwaddstr(
 					controlsWin,
 					cursorLine,

@@ -94,6 +94,7 @@ namespace game {
 			sc::duration_cast<sc::milliseconds>(pre.time_since_epoch())
 		};
 
+		ui::input::setCurrentMap(ui::input::map::GAME);
 		while (loop) {
 			pre = sc::steady_clock::now();
 			for (auto [id, timer] : timers) {
@@ -133,7 +134,7 @@ namespace game {
 						ngin::dropPolyno(&p, shape);
 					case ipt::bind::GAME_DOWN:
 					case ipt::bind::GAME_NO_ACTION:
-						timeoutAction(&p, &shape, &nextShape);
+						loop = timeoutAction(&p, &shape, &nextShape) != 1;
 						break;
 					default:
 						break;
@@ -148,7 +149,7 @@ namespace game {
 			}
 
 			if (timers.at(TIMER_TIMEOUT).delta > sc::milliseconds(timeoutMax)) {
-				timeoutAction(&p, &shape, &nextShape);
+				loop = timeoutAction(&p, &shape, &nextShape) != 1;
 				timers[TIMER_TIMEOUT].post = sc::steady_clock::now();
 			}
 

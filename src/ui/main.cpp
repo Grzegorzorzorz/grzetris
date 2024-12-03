@@ -20,6 +20,8 @@ namespace ui {
 
 	WINDOW* stdscr = NULL;
 	std::map<windowTypes, WINDOW*> windows;
+	int currentCols = -1;
+	int currentLines = -1;
 
 	int init() {
 		int ret = 0;
@@ -165,6 +167,26 @@ namespace ui {
 		wattroff(logoWin, COLOR_PAIR(MAGENTA));
 
 		return logoWin;
+	}
+
+	bool hasResized() {
+		bool hasResized = currentCols != COLS || currentLines != LINES;
+		currentCols = COLS;
+		currentLines = LINES;
+		return hasResized;
+	}
+
+	int drawGame(const ngin::playfield *p, const shp::polyomino *shape) {
+		int ret = 0;
+		clear();
+		refresh();
+		ret += drawPlayfield(p);
+		ret += drawNextShape(shape);
+		ret += drawControls();
+
+		refresh();
+
+		return ret;
 	}
 
 	int drawPlayfield(const ngin::playfield *p) {

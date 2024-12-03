@@ -15,6 +15,10 @@ namespace ui {
 
 	WINDOW* initLogo();
 
+	bool hasResized();
+
+	int drawGame(const ngin::playfield* p, const shp::polyomino* shape);
+
 	int drawPlayfield(const ngin::playfield* p);
 	int drawNextShape(const shp::polyomino* shape);
 	int drawControls();

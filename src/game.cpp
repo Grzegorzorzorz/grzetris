@@ -1,5 +1,6 @@
 #include "game.hpp"
 
+#include "engine.hpp"
 #include "ui/main.hpp"
 #include "ui/input.hpp"
 
@@ -84,6 +85,7 @@ namespace game {
 		};
 
 		ui::input::setCurrentMap(ui::input::map::GAME);
+		ui::drawGame(&p, nextShape);
 		while (loop) {
 			pre = sc::steady_clock::now();
 			for (auto [id, timer] : timers) {
@@ -92,17 +94,14 @@ namespace game {
 						- timers[id].post.time_since_epoch());
 			}
 
-			if (currentCols != COLS || currentLines != LINES) {
-				currentCols = COLS;
-				currentLines = LINES;
-				clear();
-				refresh();
+			if (ui::hasResized()) {
+				ui::drawGame(&p, nextShape);
 			}
 
 			ui::input::fetch();
 			while (ui::input::hasInput()) {
 				namespace ipt = ui::input;
-				ipt::setCurrentMap(ui::input::map::GAME);
+				ipt::setCurrentMap(ipt::map::GAME);
 				ipt::bind bind = ipt::getNext();
 				switch (bind) {
 					case ipt::bind::GAME_QUIT:
@@ -128,18 +127,15 @@ namespace game {
 					default:
 						break;
 				}
-			}
-
-			if (timers.at(TIMER_FRAME).delta > sc::milliseconds(16)) {
-				ui::drawPlayfield(&p);
-				ui::drawNextShape(nextShape);
-				ui::drawControls();
-				timers[TIMER_FRAME].post = sc::steady_clock::now();
+				
+				ui::drawGame(&p, nextShape);
 			}
 
 			if (timers.at(TIMER_TIMEOUT).delta > sc::milliseconds(timeoutMax)) {
 				loop = timeoutAction(&p, &shape, &nextShape) != 1;
 				timers[TIMER_TIMEOUT].post = sc::steady_clock::now();
+
+				ui::drawGame(&p, nextShape);
 			}
 
 			std::this_thread::sleep_for(sc::milliseconds(1));

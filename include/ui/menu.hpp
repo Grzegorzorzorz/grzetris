@@ -7,8 +7,8 @@
 
 namespace ui::menu {
 	enum signal {
-		SIGCONT,
-		SIGQUIT,
+		SIG_CONT,
+		SIG_QUIT,
 		NONE
 	};
 

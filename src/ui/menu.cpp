@@ -12,7 +12,7 @@
 
 namespace ui::menu {
 	signal doNothing() {
-		return SIGCONT;
+		return SIG_CONT;
 	}
 
 	int linkNodes(menu* m, bool isCircular=true) {
@@ -63,14 +63,14 @@ namespace ui::menu {
 
 
 		main.nodes[0].text = "Play";
-		main.nodes[0].onSelect = []{game::run(); return SIGCONT;};
+		main.nodes[0].onSelect = []{game::run(); return SIG_CONT;};
 
 		main.nodes[1].text = "Settings";
 
 		main.nodes[2].text = "Info";
 
 		main.nodes[3].text = "Quit";
-		main.nodes[3].onSelect = []{return SIGQUIT;};
+		main.nodes[3].onSelect = []{return SIG_QUIT;};
 
 
 		linkNodes(&main);
@@ -130,9 +130,9 @@ namespace ui::menu {
 		}
 
 		switch (sig) {
-			case SIGCONT:
+			case SIG_CONT:
 				return 0;
-			case SIGQUIT:
+			case SIG_QUIT:
 				return 1;
 			case NONE:
 			default:

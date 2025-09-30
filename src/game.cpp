@@ -191,6 +191,7 @@ namespace game {
 					timers[TIMER_TIMEOUT].delta = sc::milliseconds(0);
 
 					timeoutAction(&p, &shape, &nextShape);
+					ui::drawGame(&p, nextShape);
 				}
 			}
 

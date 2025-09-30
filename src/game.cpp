@@ -7,6 +7,8 @@
 #include <chrono>
 #include <thread>
 
+namespace sc = std::chrono;
+
 namespace game {
 	enum inputCodes {
 		NOMINAL,
@@ -20,9 +22,19 @@ namespace game {
 	};
 
 	struct timer {
-		std::chrono::time_point<std::chrono::steady_clock> post;
-		std::chrono::milliseconds delta;
+		sc::time_point<std::chrono::steady_clock> post;
+		sc::milliseconds delta;
 	};
+
+	std::map<timerID, timer> updateTimers(std::map<timerID, timer> timers) {
+		sc::time_point<sc::steady_clock> pre = sc::steady_clock::now();
+		for (auto [id, timer] : timers) {
+			timers[id].delta = sc::duration_cast<sc::milliseconds>(
+					pre.time_since_epoch()
+					- timers[id].post.time_since_epoch());
+		}
+		return timers;
+	}
 
 	int timeoutAction(
 			ngin::playfield* p,
@@ -54,8 +66,24 @@ namespace game {
 		return 0;
 	}
 
+	std::map<timerID, timer> initTimers() {
+		std::map<timerID, timer> timers;
+
+		timers[TIMER_FRAME] = {
+			sc::steady_clock::now(),
+			sc::milliseconds(0)
+		};
+
+		timers[TIMER_TIMEOUT] = {
+			sc::steady_clock::now(),
+			sc::duration_cast<sc::milliseconds>(
+					sc::steady_clock::now().time_since_epoch())
+		};
+
+		return timers;
+	}
+
 	void run() {
-		namespace sc = std::chrono;
 		ngin::init();
 
 
@@ -71,28 +99,12 @@ namespace game {
 		int timeoutMax = 400;
 		int timeout = 0;
 
-		std::map<timerID, timer> timers;
-
-		sc::time_point<sc::steady_clock> pre = sc::steady_clock::now();
-		timers[TIMER_FRAME] = {
-			sc::steady_clock::now(),
-			sc::milliseconds(0)
-		};
-
-		timers[TIMER_TIMEOUT] = {
-			sc::steady_clock::now(),
-			sc::duration_cast<sc::milliseconds>(pre.time_since_epoch())
-		};
+		std::map<timerID, timer> timers = initTimers();
 
 		ui::input::setCurrentMap(ui::input::map::GAME);
 		ui::drawGame(&p, nextShape);
 		while (loop) {
-			pre = sc::steady_clock::now();
-			for (auto [id, timer] : timers) {
-				timers[id].delta = sc::duration_cast<sc::milliseconds>(
-						pre.time_since_epoch()
-						- timers[id].post.time_since_epoch());
-			}
+			timers = updateTimers(timers);
 
 			if (ui::hasResized()) {
 				ui::drawGame(&p, nextShape);

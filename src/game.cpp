@@ -6,6 +6,7 @@
 
 #include <chrono>
 #include <thread>
+#include <iostream>
 
 namespace sc = std::chrono;
 
@@ -120,6 +121,10 @@ namespace game {
 				ui::drawGame(&p, nextShape);
 			}
 
+			// Track if we've moved the current shape this loop.
+			// Used by lockout logic to prevent premature locking.
+			bool hasMoved = false;
+
 			// Run through the input stack, and resolve all keys.
 			ui::input::fetch();
 			while (ui::input::hasInput()) {
@@ -132,19 +137,23 @@ namespace game {
 						break;
 					case ipt::bind::GAME_LEFT:
 						ngin::movePolyno(&p, shape, {-1,0});
+						hasMoved = true;
 						break;
 					case ipt::bind::GAME_RIGHT:
 						ngin::movePolyno(&p, shape, {1,0});
+						hasMoved = true;
 						break;
 
 					case ipt::bind::GAME_ROTATE:
 						ngin::rotate(&p, &shape);
+						hasMoved = true;
 						break;
 
 					case ipt::bind::GAME_DROP:
 						ngin::dropPolyno(&p, shape);
 					case ipt::bind::GAME_DOWN:
 						loop = timeoutAction(&p, &shape, &nextShape) != 1;
+						hasMoved = true;
 						// If the user moves the piece down themselves, they
 						// forfeit the lockout grace peroid.
 						isLockout = false;
@@ -157,15 +166,41 @@ namespace game {
 				ui::drawGame(&p, nextShape);
 			}
 
+			bool hasLeftLockout = false;
+
 			if (isLockout) {
-				
+				// Reset the grace period when the shape is moved.
+				if (hasMoved) {
+					timers[TIMER_LOCKOUT].post = sc::steady_clock::now();
+					timers[TIMER_LOCKOUT].delta = sc::milliseconds(0);
+				}
+
+				// Leave the lockout state once the grace period is over, or
+				// if the shape can fall again.
+				if (timers[TIMER_LOCKOUT].delta >= sc::milliseconds(lockoutMax)
+					|| ngin::polynoMoveCheck(&p, shape, mth::vect2D(0,1) + shape->pos))
+				{
+					isLockout = false;
+					timers[TIMER_LOCKOUT].post = sc::steady_clock::time_point::max();
+
+					// Prime the timeout timer so the shape doesn't plummet.
+					timers[TIMER_TIMEOUT].post = sc::steady_clock::now();
+					timers[TIMER_TIMEOUT].delta = sc::milliseconds(0);
+
+					timeoutAction(&p, &shape, &nextShape);
+					hasLeftLockout = true;
+				}
+				std::cerr << timers.at(TIMER_LOCKOUT).delta << std::endl;
 			}
 
 			if (timers.at(TIMER_TIMEOUT).delta >= sc::milliseconds(timeoutMax)) {
 				// We've timed out, but we've hit the bottom. It's time to
 				// trigger the lockout state.
-				if (!ngin::polynoMoveCheck(&p, shape, mth::vect2D(0,1) + shape->pos)) {
+				if (!ngin::polynoMoveCheck(&p, shape, mth::vect2D(0,1) + shape->pos)
+						&& isLockout == false) {
 					isLockout = true;
+					// Prime the lockout timer.
+					timers[TIMER_LOCKOUT].post = sc::steady_clock::now();
 				}
 
 				if (!isLockout) {

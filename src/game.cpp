@@ -178,10 +178,13 @@ namespace game {
 					timers[TIMER_LOCKOUT].delta = sc::milliseconds(0);
 				}
 
+				bool canShapeFall = ngin::polynoMoveCheck(
+						&p, shape, mth::vect2D(0,1) + shape->pos);
+
 				// Leave the lockout state once the grace period is over, or
 				// if the shape can fall again.
 				if (timers[TIMER_LOCKOUT].delta >= sc::milliseconds(lockoutMax)
-					|| ngin::polynoMoveCheck(&p, shape, mth::vect2D(0,1) + shape->pos))
+					|| canShapeFall)
 				{
 					isLockout = false;
 					timers[TIMER_LOCKOUT].post = sc::steady_clock::time_point::max();
@@ -190,7 +193,9 @@ namespace game {
 					timers[TIMER_TIMEOUT].post = sc::steady_clock::now();
 					timers[TIMER_TIMEOUT].delta = sc::milliseconds(0);
 
-					timeoutAction(&p, &shape, &nextShape);
+					if (!canShapeFall) {
+						timeoutAction(&p, &shape, &nextShape);
+					}
 					ui::drawGame(&p, nextShape);
 				}
 			}

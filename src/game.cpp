@@ -154,6 +154,11 @@ namespace game {
 					case ipt::bind::GAME_DOWN:
 						loop = timeoutAction(&p, &shape, &nextShape) != 1;
 						hasMoved = true;
+						// Reset the timeout timer, since we've already done
+						// its job.
+						timers[TIMER_TIMEOUT].post = sc::steady_clock::now();
+						timers[TIMER_TIMEOUT].delta = sc::milliseconds(0);
+
 						// If the user moves the piece down themselves, they
 						// forfeit the lockout grace peroid.
 						isLockout = false;
@@ -165,8 +170,6 @@ namespace game {
 				
 				ui::drawGame(&p, nextShape);
 			}
-
-			bool hasLeftLockout = false;
 
 			if (isLockout) {
 				// Reset the grace period when the shape is moved.
@@ -188,9 +191,7 @@ namespace game {
 					timers[TIMER_TIMEOUT].delta = sc::milliseconds(0);
 
 					timeoutAction(&p, &shape, &nextShape);
-					hasLeftLockout = true;
 				}
-				std::cerr << timers.at(TIMER_LOCKOUT).delta << std::endl;
 			}
 
 			if (timers.at(TIMER_TIMEOUT).delta >= sc::milliseconds(timeoutMax)) {

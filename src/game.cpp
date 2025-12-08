@@ -136,17 +136,15 @@ namespace game {
 						loop = false;
 						break;
 					case ipt::bind::GAME_LEFT:
-						ngin::movePolyno(&p, shape, {-1,0});
-						hasMoved = true;
+						hasMoved = hasMoved || ngin::movePolyno(&p, shape, {-1,0});
 						break;
 					case ipt::bind::GAME_RIGHT:
-						ngin::movePolyno(&p, shape, {1,0});
+						hasMoved = hasMoved || ngin::movePolyno(&p, shape, {1,0});
 						hasMoved = true;
 						break;
 
 					case ipt::bind::GAME_ROTATE:
-						ngin::rotate(&p, &shape);
-						hasMoved = true;
+						hasMoved = hasMoved || (ngin::rotate(&p, &shape) == 0);
 						break;
 
 					case ipt::bind::GAME_DROP:
